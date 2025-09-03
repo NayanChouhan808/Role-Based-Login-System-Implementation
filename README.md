@@ -89,9 +89,8 @@ flowchart TD
 ```
 
 
-```markdown
+
 # 📂 Project Structure
-```
 
 Role-Based-Login-System-Implementation/
 │── backend/              # Express.js backend
@@ -231,7 +230,3 @@ Contributions are welcome! 🎉
 # 📜 License
 
 This project is licensed under the **MIT License**.
-
-```
-
-
