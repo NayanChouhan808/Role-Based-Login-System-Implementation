@@ -87,140 +87,151 @@ flowchart TD
     C -->|Approves Loan| D[Loan Approved ✅]
     C -->|Rejects Loan| E[Loan Rejected ❌]
 ```
+
+
+```markdown
 # 📂 Project Structure
+```
+
 Role-Based-Login-System-Implementation/
-│── backend/                # Express.js backend
-│   │── models/             # Database models
-│   │── routes/             # API routes
-│   │── controllers/        # Business logic
-│   │── middleware/         # Auth & role middlewares
-│   │── server.js           # Entry point
-│
-│── frontend/               # React frontend
+│── backend/              # Express.js backend
+│   │── models/           # Database models
+│   │── routes/           # API routes
+│   │── controllers/      # Business logic
+│   │── middleware/       # Auth & role middlewares
+│   │── server.js         # Entry point
+
+│── frontend/             # React frontend
 │   │── src/
-│   │   │── components/     # UI Components
-│   │   │── pages/          # Role-based pages
-│   │   │── services/       # API calls
-│   │── App.js
-│   │── main.jsx
-│
-│── database/               # Schema / SQL scripts (if relational DB)
-│── README.md               # Documentation
+│   │   │── components/   # UI Components
+│   │   │── pages/        # Role-based pages
+│   │   │── services/     # API calls
+│   │   │── App.js
+│   │   │── main.jsx
+
+│── database/             # Schema / SQL scripts (if relational DB)
+│── README.md             # Documentation
+
+---
 
 # ⚙️ Installation & Setup
-1️⃣ Clone Repository
+
+### 1️⃣ Clone Repository
+
+```bash
 git clone https://github.com/NayanChouhan808/Role-Based-Login-System-Implementation.git
 cd Role-Based-Login-System-Implementation
+```
 
-2️⃣ Backend Setup
+### 2️⃣ Backend Setup
+
+```bash
 cd backend
 npm install
 npm start
+```
 
-3️⃣ Frontend Setup
+### 3️⃣ Frontend Setup
+
+```bash
 cd frontend
 npm install
 npm run dev
+```
 
-4️⃣ Database Setup
+### 4️⃣ Database Setup
 
-Configure .env file with your DB connection string
+* Configure `.env` file with your DB connection string
+* Run migrations / create tables (if SQL)
+* Start backend & frontend servers
 
-Run migrations / create tables (if SQL)
-
-Start backend & frontend servers
+---
 
 # 🔒 Environment Variables
 
-Create .env inside backend/:
+Create `.env` inside **backend/**:
 
+```env
 PORT=5000
 DB_URI=your_database_url
 JWT_SECRET=your_secret_key
+```
 
-📡 API Endpoints
-# 🔐 Authentication
+---
 
-POST /auth/register → Register new user
+# 📡 API Endpoints
 
-POST /auth/login → Login & get JWT
+### 🔐 Authentication
 
-🏦 Loan Management
+* **POST** `/auth/register` → Register new user
+* **POST** `/auth/login` → Login & get JWT
 
-POST /loan/apply → Apply for a loan (User only)
+### 🏦 Loan Management
 
-GET /loan/status/:id → Check loan status (User only)
+* **POST** `/loan/apply` → Apply for a loan (User only)
+* **GET** `/loan/status/:id` → Check loan status (User only)
 
-✅ Verification
+### ✅ Verification
 
-GET /loan/pending → Fetch pending loans (Verifier only)
+* **GET** `/loan/pending` → Fetch pending loans (Verifier only)
+* **POST** `/loan/verify/:id` → Verify loan (Verifier only)
 
-POST /loan/verify/:id → Verify loan (Verifier only)
+### 🛂 Admin
 
-🛂 Admin
+* **GET** `/loan/verified` → Fetch verified loans (Admin only)
+* **POST** `/loan/approve/:id` → Approve loan (Admin only)
+* **POST** `/loan/reject/:id` → Reject loan (Admin only)
 
-GET /loan/verified → Fetch verified loans (Admin only)
+---
 
-POST /loan/approve/:id → Approve loan (Admin only)
+# 🧪 Sample Usage Flow
 
-POST /loan/reject/:id → Reject loan (Admin only)
+1. User registers & logs in → Receives a JWT token
+2. User applies for loan → Loan marked as **Pending Verification**
+3. Verifier logs in → Sees all pending loans → Verifies or rejects application
+4. Admin logs in → Sees all verified applications → Approves or rejects loan
 
-🧪 Sample Usage Flow
+---
 
-User registers & logs in
-→ Receives a JWT token
+# 📸 Screenshots (Optional)
 
-User applies for loan
-→ Loan marked as Pending Verification
+* Login Page
+* User Dashboard
+* Verifier Dashboard
+* Admin Dashboard
 
-Verifier logs in
-→ Sees all pending loans
-→ Verifies or rejects application
+*(Add screenshots here after running project 🚀)*
 
-Admin logs in
-→ Sees all verified applications
-→ Approves or rejects loan
+---
 
-📸 Screenshots (Optional)
+# 🔮 Future Improvements
 
-Login Page
+* Add Email/SMS Notifications for loan status updates
+* Implement Loan Repayment Tracking
+* Add Audit Logs for actions (who approved/rejected)
+* Role Management UI for Admins
+* Improve UI with dashboards & charts
 
-User Dashboard
+---
 
-Verifier Dashboard
-
-Admin Dashboard
-
-(Add screenshots here after running project 🚀)
-
-🔮 Future Improvements
-
-Add Email/SMS Notifications for loan status updates
-
-Implement Loan Repayment Tracking
-
-Add Audit Logs for actions (who approved/rejected)
-
-Role Management UI for Admins
-
-Improve UI with dashboards & charts
-
-🤝 Contributing
+# 🤝 Contributing
 
 Contributions are welcome! 🎉
 
-Steps:
+**Steps:**
 
-Fork the repo
+1. Fork the repo
+2. Create a new branch (`feature/new-feature`)
+3. Commit changes
+4. Push to your branch
+5. Open a Pull Request
 
-Create a new branch (feature/new-feature)
+---
 
-Commit changes
+# 📜 License
 
-Push to your branch
+This project is licensed under the **MIT License**.
 
-Open a Pull Request
+```
 
-📜 License
 
-This project is licensed under the MIT License.
