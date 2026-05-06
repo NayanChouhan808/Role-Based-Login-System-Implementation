@@ -41,6 +41,18 @@ const UserDashboard = () => {
     }
   };
 
+  const handleWithdraw = async (id: string) => {
+    if (!window.confirm('Are you sure you want to withdraw this application?')) return;
+    try {
+      await loanApi.withdrawLoan(id);
+      setSuccessMessage('Loan application withdrawn successfully');
+      fetchLoans();
+    } catch (err: any) {
+      console.error('Error withdrawing loan:', err);
+      setError(err.response?.data?.message || 'Failed to withdraw application');
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -98,7 +110,7 @@ const UserDashboard = () => {
         <h1 className="text-2xl font-bold text-gray-900">Your Dashboard</h1>
         <Link 
           to="/user/create-loan"
-          className="mt-3 sm:mt-0 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+          className="mt-3 sm:mt-0 btn-primary"
         >
           <PlusCircle className="mr-2 h-4 w-4" />
           Create New Application
@@ -121,8 +133,9 @@ const UserDashboard = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
         {statusCards.map((card) => (
-          <div key={card.label} className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="p-4">
+          <div key={card.label} className="glass-card overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 border-t-0">
+            <div className={`h-1 w-full ${card.bgColor} opacity-80`}></div>
+            <div className="p-5">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-medium text-gray-500">{card.label}</h3>
                 <div className={`${card.bgColor} rounded-md p-2`}>
@@ -133,13 +146,12 @@ const UserDashboard = () => {
                 {card.value}
               </div>
             </div>
-            <div className={`h-1 w-full ${card.bgColor}`}></div>
           </div>
         ))}
       </div>
       
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="px-6 py-5 border-b border-gray-200">
+      <div className="glass-card overflow-hidden">
+        <div className="px-6 py-5 border-b border-gray-200/50">
           <h2 className="text-lg font-semibold text-gray-900">Your Loan Applications</h2>
           <p className="mt-1 text-sm text-gray-500">
             A list of all your loan applications and their current status
@@ -158,7 +170,7 @@ const UserDashboard = () => {
             <div className="mt-6">
               <Link
                 to="/user/create-loan"
-                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                className="btn-primary"
               >
                 <PlusCircle className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
                 Create New Application
@@ -190,9 +202,9 @@ const UserDashboard = () => {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200/50">
                 {loans.map((loan) => (
-                  <tr key={loan.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={loan.id} className="hover:bg-indigo-50/50 transition-colors duration-150">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
                         {loan.id.substring(0, 8)}...
@@ -208,10 +220,12 @@ const UserDashboard = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                        ${loan.status === 'DRAFT' ? 'bg-gray-100 text-gray-800' : ''}
                         ${loan.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' : ''}
                         ${loan.status === 'VERIFIED' ? 'bg-blue-100 text-blue-800' : ''}
                         ${loan.status === 'APPROVED' ? 'bg-green-100 text-green-800' : ''}
                         ${loan.status === 'REJECTED' ? 'bg-red-100 text-red-800' : ''}
+                        ${loan.status === 'WITHDRAWN' ? 'bg-gray-200 text-gray-600' : ''}
                       `}>
                         {loan.status}
                       </span>
@@ -220,13 +234,23 @@ const UserDashboard = () => {
                       {format(new Date(loan.createdAt), 'MMM dd, yyyy')}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <Link
-                        to={`/user/loans/${loan.id}`}
-                        className="text-indigo-600 hover:text-indigo-900 inline-flex items-center"
-                      >
-                        View
-                        <ExternalLink className="ml-1 h-4 w-4" />
-                      </Link>
+                      <div className="flex justify-end space-x-3">
+                        <Link
+                          to={`/user/loans/${loan.id}`}
+                          className="text-indigo-600 hover:text-indigo-900 inline-flex items-center"
+                        >
+                          View
+                          <ExternalLink className="ml-1 h-4 w-4" />
+                        </Link>
+                        {(loan.status === 'PENDING' || loan.status === 'DRAFT') && (
+                          <button
+                            onClick={() => handleWithdraw(loan.id)}
+                            className="text-red-600 hover:text-red-900 inline-flex items-center"
+                          >
+                            Withdraw
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}

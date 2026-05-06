@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { loanApi } from '../../services/api';
-import { AlertTriangle, ArrowLeft, DollarSign, Mail, User, Briefcase, MapPin, FileText, Clock, Send } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, DollarSign, Mail, User, Briefcase, MapPin, FileText, Clock } from 'lucide-react';
 
 const CreateLoan = () => {
     const navigate = useNavigate();
@@ -22,14 +22,13 @@ const CreateLoan = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleFormSubmit = async (saveAsDraft: boolean) => {
         setError('');
         setLoading(true);
 
         try {
-            await loanApi.createLoan(formData);
-            navigate('/user/dashboard', { state: { message: 'Loan application submitted successfully!' } });
+            await loanApi.createLoan({ ...formData, saveAsDraft });
+            navigate('/user/dashboard', { state: { message: saveAsDraft ? 'Draft saved successfully!' : 'Loan application submitted successfully!' } });
         } catch (err: any) {
             console.error('Error creating loan:', err);
             setError(err.response?.data?.message || 'Failed to submit loan application');
@@ -62,7 +61,7 @@ const CreateLoan = () => {
                     </p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label htmlFor="applicantName" className="block text-sm font-medium text-gray-700 mb-1">
@@ -244,26 +243,24 @@ const CreateLoan = () => {
                         >
                             Cancel
                         </Link>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {loading ? (
-                                <>
-                                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    Submitting...
-                                </>
-                            ) : (
-                                <>
-                                    <Send className="mr-2 h-4 w-4" />
-                                    Submit Application
-                                </>
-                            )}
-                        </button>
+                        <div className="flex space-x-3">
+                            <button
+                                type="button"
+                                disabled={loading}
+                                onClick={() => handleFormSubmit(true)}
+                                className="inline-flex items-center px-4 py-2 border border-indigo-200 rounded-md shadow-sm text-sm font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Save as Draft
+                            </button>
+                            <button
+                                type="button"
+                                disabled={loading}
+                                onClick={() => handleFormSubmit(false)}
+                                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {loading ? 'Submitting...' : 'Submit Application'}
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>

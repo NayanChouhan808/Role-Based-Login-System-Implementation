@@ -22,6 +22,7 @@ const VerifierDashboard = () => {
   const [stats, setStats] = useState<LoanStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [actionItems, setActionItems] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -36,7 +37,17 @@ const VerifierDashboard = () => {
       }
     };
 
+    const fetchActionItems = async () => {
+      try {
+        const response = await loanApi.getAllLoans();
+        setActionItems(response.data.filter((l: any) => l.status === 'PENDING').slice(0, 5));
+      } catch (err) {
+        console.error('Error fetching action items:', err);
+      }
+    };
+
     fetchStats();
+    fetchActionItems();
   }, []);
 
   if (loading) {
@@ -148,6 +159,48 @@ const VerifierDashboard = () => {
         </div>
       </div>
       
+      {actionItems.length > 0 && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg shadow-sm overflow-hidden mb-8">
+          <div className="px-6 py-5 border-b border-yellow-200 bg-yellow-100 flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-yellow-900 flex items-center">
+                <AlertTriangle className="h-5 w-5 mr-2 text-yellow-600" />
+                Requires My Action
+              </h2>
+              <p className="mt-1 text-sm text-yellow-700">
+                Applications currently awaiting your verification
+              </p>
+            </div>
+            <Link
+              to="/verifier/verify"
+              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-yellow-600 hover:bg-yellow-700"
+            >
+              Verify Now
+            </Link>
+          </div>
+          <div className="divide-y divide-yellow-200">
+            {actionItems.map((item) => (
+              <div key={item.id} className="p-4 sm:px-6 flex items-center justify-between hover:bg-yellow-100 transition-colors">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0 h-10 w-10 rounded-full bg-yellow-200 flex items-center justify-center">
+                    <span className="text-yellow-800 font-medium">
+                      {item.applicantName.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="ml-4">
+                    <div className="text-sm font-medium text-yellow-900">{item.applicantName}</div>
+                    <div className="text-sm text-yellow-700">${item.amount.toLocaleString()}</div>
+                  </div>
+                </div>
+                <div className="text-sm text-yellow-700">
+                  {format(new Date(item.createdAt), 'MMM dd')}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <div className="px-6 py-5 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900">Recent Applications</h2>

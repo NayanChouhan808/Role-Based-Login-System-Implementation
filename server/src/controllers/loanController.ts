@@ -1,5 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-import { Status } from '@prisma/client';
+import { PrismaClient, Status } from '@prisma/client';
+import { sendEmail } from '../utils/email';
 
 const prisma = new PrismaClient();
 
@@ -11,7 +11,8 @@ export const createLoanApplication = async (req: any, res: any) => {
     time,
     employmentStatus,
     employmentAddress,
-    purpose
+    purpose,
+    saveAsDraft
   } = req.body;
 
   const userId = req.user?.id as string;
@@ -26,9 +27,18 @@ export const createLoanApplication = async (req: any, res: any) => {
         employmentStatus,
         employmentAddress,
         purpose,
-        userId
+        userId,
+        status: saveAsDraft ? Status.DRAFT : Status.PENDING
       }
     });
+
+    if (!saveAsDraft) {
+      await sendEmail(
+        email,
+        'Loan Application Received',
+        `Dear ${applicantName},<br><br>Your loan application for $${amount} has been received and is currently PENDING verification.`
+      );
+    }
 
     res.status(201).json(newLoan);
   } catch (err) {
@@ -156,6 +166,12 @@ export const verifyLoanApplication = async (req: any, res: any) => {
       }
     });
 
+    await sendEmail(
+      updatedLoan.email,
+      'Loan Application Verified',
+      `Dear ${updatedLoan.applicantName},<br><br>Your loan application for $${updatedLoan.amount} has been VERIFIED and is now pending final approval by an Administrator.`
+    );
+
     res.json(updatedLoan);
   } catch (err) {
     console.error(err);
@@ -202,6 +218,12 @@ export const rejectLoanApplication = async (req: any, res: any) => {
       }
     });
 
+    await sendEmail(
+      updatedLoan.email,
+      'Loan Application Rejected',
+      `Dear ${updatedLoan.applicantName},<br><br>Your loan application for $${updatedLoan.amount} has been REJECTED.<br><br>Reason: ${rejectionReason}`
+    );
+
     res.json(updatedLoan);
   } catch (err) {
     console.error(err);
@@ -242,6 +264,12 @@ export const approveLoanApplication = async (req: any, res: any) => {
         }
       }
     });
+
+    await sendEmail(
+      updatedLoan.email,
+      'Loan Application Approved',
+      `Dear ${updatedLoan.applicantName},<br><br>Congratulations! Your loan application for $${updatedLoan.amount} has been APPROVED.`
+    );
 
     res.json(updatedLoan);
   } catch (err) {
@@ -296,6 +324,43 @@ export const getLoanStatistics = async (req: any, res: any) => {
       approvedAmount: approvedAmount._sum.amount || 0,
       recentApplications
     });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const withdrawLoanApplication = async (req: any, res: any) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?.id;
+
+    const loan = await prisma.loanApplication.findUnique({
+      where: { id }
+    });
+
+    if (!loan) {
+      return res.status(404).json({ message: 'Loan application not found' });
+    }
+
+    if (loan.userId !== userId) {
+      return res.status(403).json({ message: 'Unauthorized to withdraw this application' });
+    }
+
+    if (loan.status !== Status.PENDING && loan.status !== Status.DRAFT) {
+      return res.status(400).json({
+        message: `Loan application cannot be withdrawn because it is already ${loan.status.toLowerCase()}`
+      });
+    }
+
+    const updatedLoan = await prisma.loanApplication.update({
+      where: { id },
+      data: {
+        status: Status.WITHDRAWN
+      }
+    });
+
+    res.json(updatedLoan);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });

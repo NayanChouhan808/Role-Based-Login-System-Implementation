@@ -3,6 +3,7 @@ import { loanApi } from '../../services/api';
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { CheckCircle, XCircle, AlertTriangle, Search, ExternalLink, RefreshCw } from 'lucide-react';
+import RejectionModal from '../../components/RejectionModal';
 
 interface Loan {
   id: string;
@@ -19,6 +20,8 @@ const VerifyLoans = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [rejectModalOpen, setRejectModalOpen] = useState(false);
+  const [loanToReject, setLoanToReject] = useState<string | null>(null);
 
   useEffect(() => {
     fetchLoans();
@@ -43,20 +46,26 @@ const VerifyLoans = () => {
   const handleVerify = async (id: string) => {
     try {
       await loanApi.verifyLoan(id);
-      fetchLoans();
+      setLoans(prevLoans => prevLoans.filter(loan => loan.id !== id));
     } catch (err) {
       console.error('Error verifying loan:', err);
       setError('Failed to verify loan');
     }
   };
 
-  const handleReject = async (id: string) => {
-    const reason = prompt('Please provide a reason for rejection:');
-    if (!reason) return;
+  const handleRejectClick = (id: string) => {
+    setLoanToReject(id);
+    setRejectModalOpen(true);
+  };
+
+  const handleConfirmReject = async (reason: string) => {
+    if (!loanToReject) return;
     
     try {
-      await loanApi.rejectLoan(id, reason);
-      fetchLoans();
+      await loanApi.rejectLoan(loanToReject, reason);
+      setRejectModalOpen(false);
+      setLoans(prevLoans => prevLoans.filter(loan => loan.id !== loanToReject));
+      setLoanToReject(null);
     } catch (err) {
       console.error('Error rejecting loan:', err);
       setError('Failed to reject loan');
@@ -94,8 +103,8 @@ const VerifyLoans = () => {
       )}
       
       {loans.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-md p-8 text-center">
-          <div className="bg-indigo-100 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-4">
+        <div className="glass-card p-8 text-center">
+          <div className="bg-indigo-100/80 rounded-full h-16 w-16 flex items-center justify-center mx-auto mb-4">
             <CheckCircle className="h-8 w-8 text-indigo-600" />
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">All caught up!</h3>
@@ -111,8 +120,8 @@ const VerifyLoans = () => {
           </button>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="p-4 border-b border-gray-200">
+        <div className="glass-card overflow-hidden">
+          <div className="p-4 border-b border-gray-200/50">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search className="h-5 w-5 text-gray-400" />
@@ -151,9 +160,9 @@ const VerifyLoans = () => {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200/50">
                 {filteredLoans.map((loan) => (
-                  <tr key={loan.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={loan.id} className="hover:bg-indigo-50/40 transition-colors duration-150">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
@@ -198,7 +207,7 @@ const VerifyLoans = () => {
                           Verify
                         </button>
                         <button
-                          onClick={() => handleReject(loan.id)}
+                          onClick={() => handleRejectClick(loan.id)}
                           className="inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                         >
                           <XCircle className="h-3 w-3 mr-1" />
@@ -219,6 +228,11 @@ const VerifyLoans = () => {
           </div>
         </div>
       )}
+      <RejectionModal 
+        isOpen={rejectModalOpen} 
+        onClose={() => setRejectModalOpen(false)} 
+        onConfirm={handleConfirmReject} 
+      />
     </div>
   );
 };

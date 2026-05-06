@@ -29,9 +29,13 @@ The application is designed to show how **role-based login systems** can be appl
 
 ✔️ **Secure Authentication** – Register, login, JWT-based sessions  
 ✔️ **Role-Based Authorization** – Separate dashboards and permissions for each role  
-✔️ **Loan Application System** – Users can apply for loans  
+✔️ **Loan Application System** – Users can apply for loans, save as drafts, and withdraw pending applications  
 ✔️ **Loan Verification** – Verifiers review & validate applications  
 ✔️ **Loan Approval** – Admins approve/reject loans after verification  
+✔️ **Action-Oriented Dashboards** – Verifiers and Admins have "Requires My Action" widgets for their specific pending tasks  
+✔️ **Automated Email Notifications** – Email alerts on loan status changes (Verification, Approval, Rejection)  
+✔️ **Mandatory Rejection Reasons** – Reviewers must provide detailed reasons via a custom modal when denying loans  
+✔️ **Financial Calculators** – Built-in EMI Calculator and Loan Eligibility Checker for users  
 ✔️ **Scalable & Modular** – Easy to add more roles or features  
 ✔️ **Responsive UI** – Works across devices  
 
@@ -115,6 +119,22 @@ Role-Based-Login-System-Implementation/
 
 # ⚙️ Installation & Setup
 
+### 🐳 Running with Docker Compose (Recommended)
+
+If you have Docker installed, you can spin up the entire application (Database, Server, and Client) with a single command:
+
+```bash
+git clone https://github.com/NayanChouhan808/Role-Based-Login-System-Implementation.git
+cd Role-Based-Login-System-Implementation
+docker compose up -d
+```
+
+The frontend will be available at `http://localhost:5173` and the backend API at `http://localhost:3000`.
+
+---
+
+### Manual Setup (Without Docker)
+
 ### 1️⃣ Clone Repository
 
 ```bash
@@ -122,27 +142,30 @@ git clone https://github.com/NayanChouhan808/Role-Based-Login-System-Implementat
 cd Role-Based-Login-System-Implementation
 ```
 
-### 2️⃣ Backend Setup
+### 2️⃣ Database Setup
 
+* Configure `.env` file in the `server` directory with your PostgreSQL connection string.
+* Run prisma commands to setup the database:
 ```bash
-cd backend
-npm install
-npm start
+npx prisma generate
+npx prisma db push
 ```
 
-### 3️⃣ Frontend Setup
+### 3️⃣ Backend Setup
 
 ```bash
-cd frontend
+cd server
 npm install
 npm run dev
 ```
 
-### 4️⃣ Database Setup
+### 4️⃣ Frontend Setup
 
-* Configure `.env` file with your DB connection string
-* Run migrations / create tables (if SQL)
-* Start backend & frontend servers
+```bash
+cd client
+npm install
+npm run dev
+```
 
 ---
 
@@ -205,11 +228,11 @@ JWT_SECRET=your_secret_key
 
 # 🔮 Future Improvements
 
-* Add Email/SMS Notifications for loan status updates
+* Implement SMS Notifications for immediate alerts
 * Implement Loan Repayment Tracking
 * Add Audit Logs for actions (who approved/rejected)
 * Role Management UI for Admins
-* Improve UI with dashboards & charts
+* Improve UI with more complex dashboards & reporting charts
 
 ---
 

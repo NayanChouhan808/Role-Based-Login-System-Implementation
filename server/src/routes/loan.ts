@@ -7,7 +7,8 @@ import {
   rejectLoanApplication, 
   approveLoanApplication,
   getLoanStatistics,
-  getUserLoanApplications
+  getUserLoanApplications,
+  withdrawLoanApplication
 } from '../controllers/loanController';
 import { authenticate, authorize } from '../middlewares/auth';
 import { Role } from '@prisma/client';
@@ -22,5 +23,6 @@ router.get('/:id', authenticate, getLoanApplicationById);
 router.put('/:id/verify', authenticate, authorize([Role.VERIFIER, Role.ADMIN]), verifyLoanApplication);
 router.put('/:id/reject', authenticate, authorize([Role.VERIFIER, Role.ADMIN]), rejectLoanApplication);
 router.put('/:id/approve', authenticate, authorize([Role.ADMIN]), approveLoanApplication);
+router.put('/:id/withdraw', authenticate, authorize([Role.USER]), withdrawLoanApplication);
 
 export default router;

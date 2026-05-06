@@ -12,6 +12,8 @@ import UserDashboard from './pages/user/Dashboard';
 import CreateLoan from './pages/user/CreateLoan';
 import LoanDetails from './pages/LoanDetails';
 import DashboardLayout from './components/DashboardLayout';
+import EmiCalculator from './components/EmiCalculator';
+import EligibilityChecker from './components/EligibilityChecker';
 
 const AuthCheck = () => {
   const { isAuthenticated, isLoading, initialize } = useAuthStore();
@@ -132,6 +134,8 @@ function App() {
           <Route path="dashboard" element={<UserDashboard />} />
           <Route path="create-loan" element={<CreateLoan />} />
           <Route path="loans/:id" element={<LoanDetails />} />
+          <Route path="emi-calculator" element={<EmiCalculator />} />
+          <Route path="eligibility" element={<EligibilityChecker />} />
         </Route>
         
         <Route path="/" element={<Navigate to="/login" replace />} />

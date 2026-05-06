@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { loanApi } from '../../services/api';
 import { FileText, CheckCircle, AlertTriangle, DollarSign, Activity, TrendingUp, Users } from 'lucide-react';
 import { format } from 'date-fns';
@@ -24,6 +25,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [totalUsers, setTotalUsers] = useState(0);
+  const [actionItems, setActionItems] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -38,7 +40,17 @@ const AdminDashboard = () => {
       }
     };
 
+    const fetchActionItems = async () => {
+      try {
+        const response = await loanApi.getAllLoans();
+        setActionItems(response.data.filter((l: any) => l.status === 'VERIFIED').slice(0, 5));
+      } catch (err) {
+        console.error('Error fetching action items:', err);
+      }
+    };
+
     fetchStats();
+    fetchActionItems();
   }, []);
 
   useEffect(() => {
@@ -181,6 +193,48 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
+
+      {actionItems.length > 0 && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg shadow-sm overflow-hidden mb-8">
+          <div className="px-6 py-5 border-b border-blue-200 bg-blue-100 flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-blue-900 flex items-center">
+                <AlertTriangle className="h-5 w-5 mr-2 text-blue-600" />
+                Requires My Action
+              </h2>
+              <p className="mt-1 text-sm text-blue-700">
+                Verified applications currently awaiting your final approval
+              </p>
+            </div>
+            <Link
+              to="/admin/approve"
+              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+            >
+              Approve Now
+            </Link>
+          </div>
+          <div className="divide-y divide-blue-200">
+            {actionItems.map((item) => (
+              <div key={item.id} className="p-4 sm:px-6 flex items-center justify-between hover:bg-blue-100 transition-colors">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0 h-10 w-10 rounded-full bg-blue-200 flex items-center justify-center">
+                    <span className="text-blue-800 font-medium">
+                      {item.applicantName.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="ml-4">
+                    <div className="text-sm font-medium text-blue-900">{item.applicantName}</div>
+                    <div className="text-sm text-blue-700">${item.amount.toLocaleString()}</div>
+                  </div>
+                </div>
+                <div className="text-sm text-blue-700">
+                  {format(new Date(item.createdAt), 'MMM dd')}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <div className="px-6 py-5 border-b border-gray-200">

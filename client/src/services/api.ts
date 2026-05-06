@@ -41,6 +41,8 @@ export const loanApi = {
     axios.get('/user/total'),
   getUserLoanApplications: () =>
     axios.get('/loans/user'),
+  withdrawLoan: (id: string) => 
+    axios.put(`/loans/${id}/withdraw`),
 };
 
 export const userApi = {

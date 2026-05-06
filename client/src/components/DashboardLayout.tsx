@@ -9,7 +9,9 @@ import {
     X,
     CheckCircle,
     PlusCircle,
-    FileText
+    FileText,
+    Calculator,
+    ShieldCheck
 } from 'lucide-react';
 import axios from 'axios';
 
@@ -45,6 +47,18 @@ const DashboardLayout = () => {
             roles: ['USER'],
         },
         {
+            name: 'EMI Calculator',
+            path: '/user/emi-calculator',
+            icon: <Calculator size={20} />,
+            roles: ['USER'],
+        },
+        {
+            name: 'Eligibility Checker',
+            path: '/user/eligibility',
+            icon: <ShieldCheck size={20} />,
+            roles: ['USER'],
+        },
+        {
             name: 'Verify Loans',
             path: '/verifier/verify',
             icon: <CheckCircle size={20} />,
@@ -69,7 +83,7 @@ const DashboardLayout = () => {
     );
 
     return (
-        <div className="min-h-screen flex flex-col md:flex-row bg-gray-50">
+        <div className="min-h-screen flex flex-col md:flex-row bg-transparent">
             <div className="md:hidden bg-white p-4 flex items-center justify-between shadow-sm z-20 sticky top-0">
                 <div className="flex items-center">
                     <div className="bg-indigo-100 p-2 rounded-md mr-2">
@@ -87,7 +101,7 @@ const DashboardLayout = () => {
 
             <div className={`
         ${sidebarOpen ? 'block fixed inset-0 z-10 pt-16' : 'hidden'} 
-        md:sticky md:top-0 md:h-screen bg-white w-full md:w-72 shadow-md
+        md:sticky md:top-4 md:h-[calc(100vh-2rem)] md:m-4 glass-card border-none w-full md:w-72 shadow-xl
         transition-all duration-300 ease-in-out overflow-y-auto md:flex md:flex-col
       `}>
                 <div className="p-6 hidden md:flex items-center space-x-3">
@@ -96,9 +110,9 @@ const DashboardLayout = () => {
                     </div>
                     <h1 className="text-2xl font-bold text-gray-900">Loan Manager</h1>
                 </div>
-                <div className="px-6 py-4 border-t border-b border-gray-100">
+                <div className="px-6 py-5 border-b border-gray-200/40">
                     <div className="flex items-center space-x-3">
-                        <div className="bg-indigo-500 text-white rounded-full w-10 h-10 flex items-center justify-center font-semibold">
+                        <div className="bg-gradient-to-br from-indigo-500 to-purple-600 shadow-inner text-white rounded-xl w-12 h-12 flex items-center justify-center text-lg font-bold">
                             {user?.email?.charAt(0).toUpperCase()}
                         </div>
                         <div>
@@ -118,10 +132,10 @@ const DashboardLayout = () => {
                                 <Link
                                     to={item.path}
                                     className={`
-                    flex items-center space-x-3 px-6 py-3 transition-colors
+                    flex items-center space-x-3 px-6 py-3 transition-all duration-200
                     ${isActive(item.path)
-                                            ? 'text-indigo-600 bg-indigo-50 border-r-4 border-indigo-600 font-medium'
-                                            : 'text-gray-600 hover:text-indigo-600 hover:bg-gray-50'}
+                                            ? 'text-indigo-700 bg-gradient-to-r from-indigo-50/80 to-transparent border-l-4 border-indigo-600 font-semibold'
+                                            : 'text-gray-600 hover:text-indigo-600 hover:bg-white/50 border-l-4 border-transparent'}
                   `}
                                     onClick={() => setSidebarOpen(false)}
                                 >

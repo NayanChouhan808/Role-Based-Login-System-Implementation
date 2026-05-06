@@ -50,8 +50,10 @@ enum Role {
 }
 
 enum Status {
+  DRAFT
   PENDING
   VERIFIED
   REJECTED
   APPROVED
+  WITHDRAWN
 }
