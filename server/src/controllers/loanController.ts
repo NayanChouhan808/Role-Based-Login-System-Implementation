@@ -166,11 +166,11 @@ export const verifyLoanApplication = async (req: any, res: any) => {
       }
     });
 
-    await sendEmail(
+    sendEmail(
       updatedLoan.email,
       'Loan Application Verified',
       `Dear ${updatedLoan.applicantName},<br><br>Your loan application for $${updatedLoan.amount} has been VERIFIED and is now pending final approval by an Administrator.`
-    );
+    ).catch(err => console.error('Email error (verify):', err));
 
     res.json(updatedLoan);
   } catch (err) {
@@ -218,11 +218,12 @@ export const rejectLoanApplication = async (req: any, res: any) => {
       }
     });
 
-    await sendEmail(
+    // Fire-and-forget: do not await so email issues never block the response
+    sendEmail(
       updatedLoan.email,
       'Loan Application Rejected',
       `Dear ${updatedLoan.applicantName},<br><br>Your loan application for $${updatedLoan.amount} has been REJECTED.<br><br>Reason: ${rejectionReason}`
-    );
+    ).catch(err => console.error('Email error (reject):', err));
 
     res.json(updatedLoan);
   } catch (err) {
@@ -265,11 +266,12 @@ export const approveLoanApplication = async (req: any, res: any) => {
       }
     });
 
-    await sendEmail(
+    // Fire-and-forget: do not await so email issues never block the response
+    sendEmail(
       updatedLoan.email,
       'Loan Application Approved',
       `Dear ${updatedLoan.applicantName},<br><br>Congratulations! Your loan application for $${updatedLoan.amount} has been APPROVED.`
-    );
+    ).catch(err => console.error('Email error (approve):', err));
 
     res.json(updatedLoan);
   } catch (err) {
