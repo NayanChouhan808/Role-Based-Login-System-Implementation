@@ -10,6 +10,13 @@ export const register = async (req: any, res: any) => {
   const { email, username, password } = req.body;
 
   try {
+    // Validate inputs
+    if (!email || !password) {
+      return res.status(400).json({ 
+        message: 'Email and password are required' 
+      });
+    }
+
     const existingUser = await prisma.user.findFirst({
       where: {
         OR: [
@@ -35,6 +42,12 @@ export const register = async (req: any, res: any) => {
       }
     });
 
+    // Verify JWT_SECRET is set
+    if (!process.env.JWT_SECRET) {
+      console.error('JWT_SECRET is not configured');
+      return res.status(500).json({ message: 'Server configuration error' });
+    }
+
     const payload = {
       id: user.id,
       role: user.role
@@ -42,7 +55,7 @@ export const register = async (req: any, res: any) => {
 
     const token = jwt.sign(
       payload,
-      process.env.JWT_SECRET as string,
+      process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
 
@@ -54,15 +67,23 @@ export const register = async (req: any, res: any) => {
         role: user.role
       }
     });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
+  } catch (err: any) {
+    console.error('Registration error:', err.message || err);
+    res.status(500).json({ message: 'Server error during registration. Please try again later.' });
   }
 };
 
 export const login = async (req: any, res: any) => {
   const { email, password } = req.body;
+  
   try {
+    // Validate inputs
+    if (!email || !password) {
+      return res.status(400).json({ 
+        message: 'Email and password are required' 
+      });
+    }
+
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
@@ -73,6 +94,12 @@ export const login = async (req: any, res: any) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
+    // Verify JWT_SECRET is set
+    if (!process.env.JWT_SECRET) {
+      console.error('JWT_SECRET is not configured');
+      return res.status(500).json({ message: 'Server configuration error' });
+    }
+
     const payload = {
       id: user.id,
       role: user.role
@@ -80,7 +107,7 @@ export const login = async (req: any, res: any) => {
 
     const token = jwt.sign(
       payload,
-      process.env.JWT_SECRET as string,
+      process.env.JWT_SECRET,
       { expiresIn: '1d' }
     );
 
@@ -92,8 +119,8 @@ export const login = async (req: any, res: any) => {
         role: user.role
       }
     });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
+  } catch (err: any) {
+    console.error('Login error:', err.message || err);
+    res.status(500).json({ message: 'Server error during login. Please try again later.' });
   }
 };
